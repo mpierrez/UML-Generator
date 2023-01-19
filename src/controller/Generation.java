@@ -6,6 +6,9 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Modifier;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 public class Generation{
 
@@ -13,55 +16,57 @@ public class Generation{
     private FileWriter ecriture = null;
     private Classe classe;
 
-    public void generate(String subFile, File file) throws ClassNotFoundException, IOException {
-        if(file.isDirectory())
-        {
-            for(File f : file.listFiles())
-            {
-                if(f.getName().equals("pieces"))
-                {
-                    generate("model", f);
+    public void generate(File file, String savePath) throws ClassNotFoundException, IOException {
+        if(file.isDirectory()) {
+            for (File f : Objects.requireNonNull(file.listFiles())) {
+                if (f.isDirectory()) {
+                    File dir = new File(savePath + "/" + f.getName());
+                    if(dir.mkdir())
+                    {
+                        generate(f, dir.getAbsolutePath());
+                    }
                 } else {
-                    Class c = (subFile.equals("model")) ? Class.forName(subFile + "." + file.getName() + "." + f.getName().split("\\.")[0]) : Class.forName(file.getName() + "." + f.getName().split("\\.")[0]);
-                    Classe classe = new Classe(c);
-                    if (Modifier.isAbstract(c.getModifiers())) {
-                        if (c.isInterface()) {
-                            classe = new Interface(c);
-                        } else {
-                            classe = new ClasseAbstraite(c);
-                        }
-                    } else if (c.isEnum()) {
-                        classe = new Enumeration(c);
-                    }
-                    this.classe = classe;
-
-                    //Générer le fichier puml
-                    String nomFichier = f.getName().split("\\.")[0];
-                    File fichier = new File(nomFichier+ ".puml");
-                    this.ecriture = new FileWriter(nomFichier+ ".puml");
-
-                    if (fichier.exists()) {
-                        if (fichier.delete())
-                            System.out.println("Le fichier existe déjà, nous l'avons donc supprimé pour en générer un nouveau!");
-                    }
-                    fichier.createNewFile();
-
-                    //Lancement de la sélection de l'utilisateur
-                    ecrireEnTete();
-                    ecrireClasse();
-                    ecrireGlobale();
-                    ecrirePiedPage();
-                    ecrire();
-                    System.out.println("Votre fichier a été généré avec succès!");
-                    if (ecriture != null) ecriture.close();
+                    write(f, savePath);
                 }
             }
+        } else {
+            write(file, savePath);
         }
     }
 
+    public void write(File file, String savePath) throws ClassNotFoundException, IOException {
+        Class<?> c = Class.forName(file.getClass().getName());
+        Classe classe = new Classe(c);
+        if (Modifier.isAbstract(c.getModifiers())) {
+            if (c.isInterface()) {
+                classe = new Interface(c);
+            } else {
+                classe = new ClasseAbstraite(c);
+            }
+        } else if (c.isEnum()) {
+            classe = new Enumeration(c);
+        }
+        this.classe = classe;
 
-    public String getUml(){
-        return uml;
+        //Générer le fichier puml
+        String nomFichier = file.getName().split("\\.")[0];
+        File fichier = new File(savePath + "\\" +nomFichier+ ".puml");
+        this.ecriture = new FileWriter(savePath + "\\" + nomFichier+ ".puml");
+
+        if (fichier.exists()) {
+            if (fichier.delete())
+                System.out.println("Le fichier " + nomFichier + " existe déjà, nous l'avons donc supprimé pour en générer un nouveau!");
+        }
+        fichier.createNewFile();
+
+        //Lancement de la sélection de l'utilisateur
+        ecrireEnTete();
+        ecrireClasse();
+        ecrireGlobale();
+        ecrirePiedPage();
+        ecrire();
+        System.out.println("Le fichier " + nomFichier + " a été généré avec succès!");
+        if (ecriture != null) ecriture.close();
     }
 
     public void ecrireEnTete() {
