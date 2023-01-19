@@ -1,3 +1,5 @@
+package model;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -5,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class Attribut implements Options{
+public class Attribut implements Options {
 
     private final Field field;
     private final boolean estEnum;

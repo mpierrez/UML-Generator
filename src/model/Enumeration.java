@@ -1,3 +1,5 @@
+package model;
+
 public class Enumeration extends Classe
 {
     public Enumeration(Class classe) throws ClassNotFoundException

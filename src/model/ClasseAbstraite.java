@@ -1,3 +1,5 @@
+package model;
+
 public class ClasseAbstraite extends Classe
 {
     public ClasseAbstraite(Class classe) throws ClassNotFoundException

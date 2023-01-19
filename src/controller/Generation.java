@@ -1,16 +1,65 @@
+package controller;
+
+import model.*;
+
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.reflect.Modifier;
 
-class Generation{
+public class Generation{
 
-    private final FileWriter ecriture;
-    private final Classe classe;
     private String uml="";
+    private FileWriter ecriture = null;
+    private Classe classe;
 
-    public Generation(FileWriter ecriture, Classe classe){
-        this.ecriture = ecriture;
-        this.classe = classe;
+    public void generate(String subFile, File file) throws ClassNotFoundException, IOException {
+        if(file.isDirectory())
+        {
+            for(File f : file.listFiles())
+            {
+                if(f.getName().equals("pieces"))
+                {
+                    generate("model", f);
+                } else {
+                    Class c = (subFile.equals("model")) ? Class.forName(subFile + "." + file.getName() + "." + f.getName().split("\\.")[0]) : Class.forName(file.getName() + "." + f.getName().split("\\.")[0]);
+                    Classe classe = new Classe(c);
+                    if (Modifier.isAbstract(c.getModifiers())) {
+                        if (c.isInterface()) {
+                            classe = new Interface(c);
+                        } else {
+                            classe = new ClasseAbstraite(c);
+                        }
+                    } else if (c.isEnum()) {
+                        classe = new Enumeration(c);
+                    }
+                    this.classe = classe;
+
+                    //Générer le fichier puml
+                    String nomFichier = f.getName().split("\\.")[0];
+                    File fichier = new File(nomFichier+ ".puml");
+                    this.ecriture = new FileWriter(nomFichier+ ".puml");
+
+                    if (fichier.exists()) {
+                        if (fichier.delete())
+                            System.out.println("Le fichier existe déjà, nous l'avons donc supprimé pour en générer un nouveau!");
+                    }
+                    fichier.createNewFile();
+
+                    //Lancement de la sélection de l'utilisateur
+                    ecrireEnTete();
+                    ecrireClasse();
+                    ecrireGlobale();
+                    ecrirePiedPage();
+                    ecrire();
+                    System.out.println("Votre fichier a été généré avec succès!");
+                    if (ecriture != null) ecriture.close();
+                }
+            }
+        }
     }
+
+
     public String getUml(){
         return uml;
     }

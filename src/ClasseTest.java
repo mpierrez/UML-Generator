@@ -1,8 +1,11 @@
+import model.Attribut;
+import model.Classe;
+import model.Constructeur;
+import model.Methode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Parameter;
-import java.time.Year;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,3 +1,5 @@
+package model;
+
 public class Interface extends Classe {
 
     public Interface(Class classe) throws ClassNotFoundException {

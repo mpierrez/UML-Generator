@@ -1,90 +1,73 @@
 package view;
 
-import controller.Game;
+import controller.Generation;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Objects;
+import java.io.File;
 
 public class MainMenuWindow extends JFrame
 {
-    private String[] names = {"Joueur1", "Joueur2"};
-    private boolean whitesFirst = true;
+    public MainMenuWindow(Generation generation)
+    {
+        // On ajoute un titre à notre fenêtre
+        super("MuffinShop");
+        setSize(500,500);
 
-    public MainMenuWindow() {
-        super( "Menu principal" );
-        setSize( 600, 650 );
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-
-        JLabel logo = new JLabel();
-        logo.setIcon(new ImageIcon(new ImageIcon(Objects.requireNonNull(getClass().getResource("/img/logo.png"))).getImage().getScaledInstance(150, 150, Image.SCALE_DEFAULT)));
-
-
-        JLabel title = new JLabel("Chess Game");
-        title.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
-
-        JLabel subtitle = new JLabel("(by Mathys PIERREZ and Yoann GRIM)");
-        subtitle.setFont(new Font(Font.SANS_SERIF, Font.ITALIC, 10));
-
-        // On centre le contenu de label horizontallement
-        logo.setHorizontalAlignment(SwingConstants.CENTER);
-        title.setHorizontalAlignment(SwingConstants.CENTER);
-        subtitle.setHorizontalAlignment(SwingConstants.CENTER);
-
-        // On centre le contenu de label verticalement
-        logo.setVerticalAlignment(SwingConstants.CENTER);
-        title.setVerticalAlignment(SwingConstants.CENTER);
-        subtitle.setVerticalAlignment(SwingConstants.CENTER);
-
-        JButton startButton = new JButton("Commencer");
-        startButton.addActionListener(actionEvent  -> {
-                Game game = new Game(names, whitesFirst);
-                game.startGame();
-                this.dispose();
-        });
-        JButton configButton = new JButton("Paramètres");
-        configButton.addActionListener(actionEvent -> {
-            new ConfigWindow(this, names, whitesFirst);
-        });
-
-        JButton quitButton = new JButton("Quitter");
-        quitButton.addActionListener(actionEvent -> {
-            this.dispose();
-        });
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridBagLayout());
+        // Panels
+        JPanel centerPanel = new JPanel();
+        centerPanel.setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.gridx = 1;
+        constraints.gridx = 0;
         constraints.gridy = 0;
-        panel.add(logo, constraints);
+
+        //Labels
+        JLabel title = new JLabel("UML Generator", SwingConstants.CENTER);
+        JLabel subtitle = new JLabel("Bienvenue sur le générateur d'UML par Mathys PIERREZ !", SwingConstants.CENTER);
+        JLabel version = new JLabel("Version 1.0.0", SwingConstants.CENTER);
+
+        // Text Areas
+        JTextArea textArea = new JTextArea(1,30);
+        textArea.setLineWrap(false);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        // File Chooser
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setCurrentDirectory(new File("."));
+        fileChooser.setDialogTitle("Sélectionnez le fichier à convertir");
+
+
+        // Buttons
+        JButton confirmButton = new JButton("Confirmer");
+        JButton searchButton = new JButton("Chercher un fichier");
+        searchButton.addActionListener( actionEvent -> {
+            if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
+            {
+                System.out.println("Selected " + fileChooser.getSelectedFile());
+            }
+        });
+
+        // Set styles
+        title.setFont(new Font("Sans-Serif", Font.BOLD, 22));
+
+        centerPanel.add(title, constraints);
         constraints.gridy++;
-        panel.add(title, constraints);
+        centerPanel.add(subtitle, constraints);
         constraints.gridy++;
-        panel.add(subtitle, constraints);
-        constraints.insets = new Insets(10,10,10,10);
+        constraints.insets = new Insets(20, 0, 0, 5);
+        centerPanel.add(scrollPane, constraints);
+        constraints.gridx++;
+        centerPanel.add(confirmButton, constraints);
+        constraints.gridx--;
         constraints.gridy++;
-        panel.add(startButton, constraints);
-        constraints.gridy++;
-        panel.add(configButton, constraints);
-        constraints.gridy++;
-        panel.add(quitButton, constraints);
-        setContentPane(panel);
+        centerPanel.add(searchButton, constraints);
+        add(centerPanel, BorderLayout.CENTER);
+        add(version, BorderLayout.SOUTH);
+
+        // On rend la fenêtre visible
+        setResizable(false);
         setVisible(true);
+
     }
 
-    public void setWhitesName(String whitesName)
-    {
-        this.names[0] = whitesName;
-    }
-
-    public void setBlacksName(String blacksName)
-    {
-        this.names[1] = blacksName;
-    }
-
-    public void setWhitesFirst(boolean b)
-    {
-        this.whitesFirst = b;
-    }
 }

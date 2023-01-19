@@ -1,3 +1,5 @@
+package model;
+
 public class Relation {
 
     private Class origin;
