@@ -1,7 +1,7 @@
 import controller.Generation;
 import view.MainMenuWindow;
 
-public class PlantUml {
+public class GeneratorApp {
 
     public static void main(String[] args) {
         Generation generation = new Generation();

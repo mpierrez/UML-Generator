@@ -2,71 +2,64 @@ package controller;
 
 import model.*;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Generation{
 
-    private String uml="";
-    private FileWriter ecriture = null;
-    private Classe classe;
+    private GenerationStrategy strategy;
+    protected String uml="";
+    protected FileWriter ecriture;
+    protected Classe classe;
 
-    public void generate(File file, String savePath) throws ClassNotFoundException, IOException {
-        if(file.isDirectory()) {
-            for (File f : Objects.requireNonNull(file.listFiles())) {
-                if (f.isDirectory()) {
-                    File dir = new File(savePath + "/" + f.getName());
-                    if(dir.mkdir())
-                    {
-                        generate(f, dir.getAbsolutePath());
-                    }
-                } else {
-                    write(f, savePath);
-                }
+    public void setStrategy(GenerationStrategy strategy)
+    {
+        this.strategy = strategy;
+    }
+
+    public void startGeneration(File file, String savePath) throws IOException, ClassNotFoundException {
+        if(strategy == null)
+        {
+            this.strategy = new MultipleGeneration();
+        }
+        System.out.println("GEN: " + strategy);
+        strategy.generate(file, savePath);
+    }
+
+    public static void copyFile(File file)
+    {
+        try {
+            InputStream is = new FileInputStream(file.getAbsolutePath());
+            OutputStream os = new FileOutputStream(file.getName());
+            byte[] buffer = new byte[1024];
+            int len;
+            while ((len = is.read(buffer)) > 0) {
+                os.write(buffer, 0, len);
             }
-        } else {
-            write(file, savePath);
+            is.close();
+            os.close();
+        }
+        catch(IOException e){
+            e.printStackTrace();
         }
     }
 
-    public void write(File file, String savePath) throws ClassNotFoundException, IOException {
-        Class<?> c = Class.forName(file.getClass().getName());
-        Classe classe = new Classe(c);
-        if (Modifier.isAbstract(c.getModifiers())) {
-            if (c.isInterface()) {
-                classe = new Interface(c);
-            } else {
-                classe = new ClasseAbstraite(c);
-            }
-        } else if (c.isEnum()) {
-            classe = new Enumeration(c);
+    public static String getPackageName(File file)
+    {
+        String filePath = file.getAbsolutePath();
+        filePath = filePath.replace(File.separator, ".");
+        Pattern pattern = Pattern.compile("(.*\\.java\\.)(.*)(\\..*)");
+        Matcher matcher = pattern.matcher(filePath);
+        if(matcher.find())
+        {
+            return matcher.group(2);
         }
-        this.classe = classe;
-
-        //Générer le fichier puml
-        String nomFichier = file.getName().split("\\.")[0];
-        File fichier = new File(savePath + "\\" +nomFichier+ ".puml");
-        this.ecriture = new FileWriter(savePath + "\\" + nomFichier+ ".puml");
-
-        if (fichier.exists()) {
-            if (fichier.delete())
-                System.out.println("Le fichier " + nomFichier + " existe déjà, nous l'avons donc supprimé pour en générer un nouveau!");
-        }
-        fichier.createNewFile();
-
-        //Lancement de la sélection de l'utilisateur
-        ecrireEnTete();
-        ecrireClasse();
-        ecrireGlobale();
-        ecrirePiedPage();
-        ecrire();
-        System.out.println("Le fichier " + nomFichier + " a été généré avec succès!");
-        if (ecriture != null) ecriture.close();
+        return "default";
     }
 
     public void ecrireEnTete() {
@@ -162,8 +155,5 @@ public class Generation{
 
     public void ecrire() throws IOException {
         ecriture.write(uml);
-    }
-    public void reset(){
-        uml.replace(uml, "");
     }
 }

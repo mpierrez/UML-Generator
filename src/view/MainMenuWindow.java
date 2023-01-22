@@ -1,11 +1,12 @@
 package view;
 
 import controller.Generation;
+import controller.MultipleGeneration;
+import controller.SingleGeneration;
 
 import javax.swing.*;
 import java.awt.*;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 
 public class MainMenuWindow extends JFrame
 {
@@ -19,10 +20,11 @@ public class MainMenuWindow extends JFrame
         super("UML Generator");
         this.savePath = System.getProperty("user.dir") + "\\uml";
         setSize(800,500);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
 
         // Panels
         JPanel panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.PAGE_AXIS));
+        panel.setLayout(new GridBagLayout());
         setContentPane(panel);
 
         JPanel topPanel = new JPanel();
@@ -31,10 +33,11 @@ public class MainMenuWindow extends JFrame
         JPanel centerPanel = new JPanel();
         centerPanel.setLayout(new GridBagLayout());
 
-        JPanel confirmPanel = new JPanel();
-        confirmPanel.setLayout(new GridBagLayout());
+        JPanel centerPanel2 = new JPanel();
+        centerPanel2.setLayout(new GridBagLayout());
 
-        JPanel bottomPanel = new JPanel();
+        JPanel parametersPanel = new JPanel();
+        parametersPanel.setLayout(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.gridx = 0;
@@ -48,15 +51,17 @@ public class MainMenuWindow extends JFrame
         JLabel filePathLabel = new JLabel("Le fichier ou répertoire suivant sera converti :", SwingConstants.CENTER);
         JLabel savePathLabel = new JLabel("Le fichier UML sera sauvegardé ici :", SwingConstants.CENTER);
 
+        JLabel savingMethod = new JLabel("Comment le résultat doit être généré ?", SwingConstants.CENTER);
+
         JLabel version = new JLabel("Version 1.0.0", SwingConstants.CENTER);
 
         // Text Areas
-        JTextArea fileTextArea = new JTextArea(filePath, 1, 30);
+        JTextArea fileTextArea = new JTextArea(filePath, 1, 40);
         fileTextArea.setLineWrap(false);
         fileTextArea.setEditable(false);
         JScrollPane fileScrollPane = new JScrollPane(fileTextArea);
 
-        JTextArea saveTextArea = new JTextArea(savePath, 1, 30);
+        JTextArea saveTextArea = new JTextArea(savePath, 1, 40);
         saveTextArea.setLineWrap(false);
         saveTextArea.setEditable(false);
         JScrollPane saveScrollPane = new JScrollPane(saveTextArea);
@@ -66,11 +71,24 @@ public class MainMenuWindow extends JFrame
         fileChooser.setCurrentDirectory(new File("."));
 
         // Buttons
+        ButtonGroup buttonGroup = new ButtonGroup();
+        JRadioButton multipleFiles = new JRadioButton("Un fichier pour chaque classe");
+        multipleFiles.addActionListener(actionEvent -> {
+            generation.setStrategy(new MultipleGeneration());
+        });
+        JRadioButton oneBigFile = new JRadioButton("Un seul fichier");
+        oneBigFile.addActionListener(actionEvent -> {
+            generation.setStrategy(new SingleGeneration());
+        });
+        buttonGroup.add(multipleFiles);
+        buttonGroup.add(oneBigFile);
+        multipleFiles.setSelected(true);
+
         JButton confirmButton = new JButton("Confirmer");
         confirmButton.addActionListener( actionEvent -> {
             try {
-                generation.generate(new File(filePath), savePath);
-            } catch (ClassNotFoundException | IOException e) {
+                generation.startGeneration(new File(filePath), savePath);
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
         });
@@ -104,35 +122,53 @@ public class MainMenuWindow extends JFrame
         constraints.gridy++;
         topPanel.add(subtitle, constraints);
         constraints.gridy++;
+        constraints.insets = new Insets(0, 0, 20, 0);
+        add(topPanel, constraints);
 
-        constraints.insets = new Insets(0, 50, 0, 0);
-        centerPanel.add(filePathLabel, constraints);
+        //
+        constraints.gridy++;
+        constraints.insets = new Insets(0, 0, 10, 0);
+        add(filePathLabel, constraints);
+
         constraints.gridy++;
         centerPanel.add(fileScrollPane, constraints);
         constraints.insets = new Insets(0, 10, 0, 0);
         constraints.gridx++;
         centerPanel.add(searchButton, constraints);
         constraints.gridx--;
-        constraints.gridy++;
-        constraints.insets = new Insets(10, 50, 0, 0);
+        add(centerPanel, constraints);
 
-        centerPanel.add(savePathLabel, constraints);
+        //
         constraints.gridy++;
-        centerPanel.add(saveScrollPane, constraints);
-        constraints.gridx++;
+        constraints.insets = new Insets(0, 0, 10, 0);
+        add(savePathLabel, constraints);
+
+        constraints.gridy++;
+        centerPanel2.add(saveScrollPane, constraints);
         constraints.insets = new Insets(0, 10, 0, 0);
-        centerPanel.add(saveButton, constraints);
+        constraints.gridx++;
+        centerPanel2.add(saveButton, constraints);
+        constraints.gridx--;
+        add(centerPanel2, constraints);
+
+        constraints.gridy++;
+        constraints.insets = new Insets(20, 0, 0, 0);
+        add(savingMethod, constraints);
+
+        parametersPanel.add(multipleFiles, constraints);
+        constraints.gridx++;
+        parametersPanel.add(oneBigFile, constraints);
         constraints.gridx--;
         constraints.gridy++;
-        constraints.insets = new Insets(10, 0, 0, 0);
-        confirmPanel.add(confirmButton, constraints);
-        constraints.gridy++;
-        bottomPanel.add(version);
+        constraints.insets = new Insets(0, 0, 20, 0);
+        add(parametersPanel, constraints);
 
-        add(topPanel);
-        add(centerPanel);
-        add(confirmPanel);
-        add(bottomPanel);
+        constraints.gridy++;
+        constraints.insets = new Insets(0, 0, 20, 0);
+        add(confirmButton, constraints);
+
+        constraints.gridy++;
+        add(version, constraints);
 
         // On rend la fenêtre visible
         setResizable(false);
