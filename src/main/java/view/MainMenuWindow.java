@@ -11,7 +11,7 @@ import java.io.*;
 public class MainMenuWindow extends JFrame
 {
     //private String filePath = "Aucun fichier sélectionné";
-    private String filePath = "C:\\Users\\mathy\\OneDrive\\Bureau\\Robert_Schuman\\2\\A32\\a31-chessgame\\ChessGame\\src\\model";
+    private String filePath = "C:\\Users\\mathy\\OneDrive\\Bureau\\Robert_Schuman\\2\\A32\\a31-chessgame\\ChessGame\\src\\model\\ChessBoard.java";
     private String savePath;
 
     public MainMenuWindow(Generation generation)

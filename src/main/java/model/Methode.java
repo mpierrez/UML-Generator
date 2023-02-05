@@ -1,5 +1,7 @@
 package model;
 
+import com.github.javaparser.ast.body.MethodDeclaration;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;

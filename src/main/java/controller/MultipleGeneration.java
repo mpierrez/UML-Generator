@@ -13,7 +13,7 @@ public class MultipleGeneration extends Generation implements GenerationStrategy
 {
 
     @Override
-    public void generate(File file, String savePath) throws IOException, ClassNotFoundException {
+    public void generate(File file, String savePath) throws IOException {
         if(file.isDirectory()) {
             for (File f : Objects.requireNonNull(file.listFiles())) {
                 if (f.isDirectory()) {
@@ -32,23 +32,7 @@ public class MultipleGeneration extends Generation implements GenerationStrategy
     }
 
     @Override
-    public void write(File file, String savePath) throws ClassNotFoundException, IOException {
-        System.out.println("Package for " + file.getName() + " : " + getPackageName(file));
-
-
-        Class<?> c = Class.forName("ChessBoard");
-        Classe classe = new Classe(c);
-        if (Modifier.isAbstract(c.getModifiers())) {
-            if (c.isInterface()) {
-                classe = new Interface(c);
-            } else {
-                classe = new ClasseAbstraite(c);
-            }
-        } else if (c.isEnum()) {
-            classe = new Enumeration(c);
-        }
-        this.classe = classe;
-
+    public void write(File file, String savePath) throws IOException {
         //Générer le fichier puml
         String nomFichier = file.getName().split("\\.")[0];
         File fichier = new File(savePath + "\\" +nomFichier+ ".puml");
@@ -61,11 +45,10 @@ public class MultipleGeneration extends Generation implements GenerationStrategy
         fichier.createNewFile();
 
         //Lancement de la sélection de l'utilisateur
-        ecrireEnTete();
-        ecrireClasse();
-        ecrireGlobale();
-        ecrirePiedPage();
-        ecrire();
+        ecriture.write(ecrireEnTete());
+        ecriture.write(transformJavaToPlantUML(file));
+        ecriture.write("\n\n@enduml\n");
+
         System.out.println("Le fichier " + nomFichier + " a été généré avec succès!");
         if (ecriture != null) ecriture.close();
     }

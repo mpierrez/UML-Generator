@@ -45,8 +45,8 @@ public class SingleGeneration extends Generation implements GenerationStrategy
         }
         if(fichier.getName().split("\\.")[0].equals(file.getName())) {
             System.out.println(fichier.getName() + " == " + file.getName());
-            ecrirePiedPage();
-            ecrire();
+//            ecrirePiedPage();
+//           ecrire();
             System.out.println("Le fichier " + fichier.getName() + " a été généré avec succès!");
             fichier = null;
             if (ecriture != null) ecriture.close();
@@ -72,8 +72,7 @@ public class SingleGeneration extends Generation implements GenerationStrategy
         this.classe = classe;
 
         //Lancement de la sélection de l'utilisateur
-        ecrireClasse();
-        ecrireGlobale();
-        ecrire();
+        //ecrireClasse();
+        //ecrire();
     }
 }

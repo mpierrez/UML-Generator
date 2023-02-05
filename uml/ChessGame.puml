@@ -1,0 +1,28 @@
+@startuml
+
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam classFontStyle Bold
+hide enum methods
+hide empty members
+
+class ChessGame {
+//L'attribut chessBoard renvoie une liste : à gérer dans les relations
+-  checkSimulation : Boolean
+-  checkProtection : Boolean
+//L'attribut squaresToProtect renvoie une liste : à gérer dans les relations
++ <<Create>> ChessGame(chessBoard : ChessBoard)
++  isValidMovement(from : Square, to : Square) : Boolean
++  resetPiecesMovements() 
++  isValidSimulation(from : Square, to : Square) : Boolean
++  determineDirection(from : Square, to : Square) : Direction
++  setAllProtectors(king : King) 
++  checkIfKingIsSafe(attacker : Square) : Boolean
++  movePieceTo(player : Player, from : Square, to : Square) 
++  getHighLightSquares(square : Square) : List<Square>
++  getNumberOfValues(list : List<T>) : Integer
+}
+
+
+
+@enduml
