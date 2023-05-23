@@ -37,13 +37,10 @@ public class MultipleGeneration extends Generation implements GenerationStrategy
         File fichier = new File(savePath + "\\" +nomFichier+ ".puml");
         this.ecriture = new FileWriter(savePath + "\\" + nomFichier+ ".puml");
 
-        if (fichier.exists()) {
-            if (fichier.delete())
-                System.out.println("Le fichier " + nomFichier + " existe déjà, nous l'avons donc supprimé pour en générer un nouveau!");
-        }
         fichier.createNewFile();
 
         //Lancement de l'écriture dans le fichier
+        ecriture.write(""); // Effacer le contenu du fichier en écrivant une chaîne vide
         ecriture.write(ecrireEnTete());
         ecriture.write(transformJavaToPlantUML(file));
         ecriture.write(ecrirePiedDePage());

@@ -5,6 +5,7 @@ import model.Generation;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.Objects;
 
 public class SingleGeneration extends Generation implements GenerationStrategy
@@ -20,8 +21,10 @@ public class SingleGeneration extends Generation implements GenerationStrategy
     @Override
     public void generate(File file, String savePath) throws IOException
     {
-        if(super.file.isDirectory())
+        if(file.isDirectory())
         {
+            uml.setLength(0);
+            relations.setLength(0);
             for (File f : Objects.requireNonNull(file.listFiles())) {
                 if (f.isDirectory()) {
                     generate(f, savePath + "/" + f.getName());
@@ -41,13 +44,11 @@ public class SingleGeneration extends Generation implements GenerationStrategy
     @Override
     public void write(File file, String savePath) throws IOException {
         //Générer le fichier puml
-        String nomFichier = super.file.getName().split("\\.")[0];
-        File fichier = new File(super.savePath + "//" + nomFichier+ ".puml");
-        this.ecriture = new FileWriter(super.savePath + "//" + nomFichier+ ".puml");
+        String nomFichier = file.getName().split("\\.")[0];
+        File fichier = new File(savePath + "//" + nomFichier+ ".puml");
+        this.ecriture = new FileWriter(savePath + "//" + nomFichier+ ".puml");
 
-        if (!fichier.exists()) {
-            fichier.createNewFile();
-        }
+        fichier.createNewFile();
 
         //Lancement de l'écriture dans le fichier
         ecriture.write(ecrireEnTete());

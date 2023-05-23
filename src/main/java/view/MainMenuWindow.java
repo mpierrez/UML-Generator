@@ -8,6 +8,8 @@ import controller.SingleGeneration;
 import javax.swing.*;
 import java.awt.*;
 import java.io.*;
+import javax.swing.filechooser.FileFilter;
+
 
 public class MainMenuWindow extends JFrame implements MainMenuObserver
 {
@@ -68,6 +70,19 @@ public class MainMenuWindow extends JFrame implements MainMenuObserver
         JFileChooser fileChooser = new JFileChooser();
         fileChooser.setCurrentDirectory(new File("."));
 
+        // Créer un filtre pour les fichiers .java
+        FileFilter javaFileFilter = new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+                return file.isDirectory() || file.getName().toLowerCase().endsWith(".java");
+            }
+
+            @Override
+            public String getDescription() {
+                return "Fichiers Java (*.java)";
+            }
+        };
+
         // Buttons
         ButtonGroup buttonGroup = new ButtonGroup();
         JRadioButton multipleFiles = new JRadioButton("Un fichier pour chaque classe");
@@ -84,10 +99,12 @@ public class MainMenuWindow extends JFrame implements MainMenuObserver
                 generation.startGeneration();
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
+                showMessageBox("Une erreur est survenue, veuillez réessayez plus tard.");
             }
         });
         JButton searchButton = new JButton("Chercher");
         searchButton.addActionListener(actionEvent -> {
+            fileChooser.setFileFilter(javaFileFilter);
             fileChooser.setDialogTitle("Sélectionnez le fichier à convertir");
             fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)

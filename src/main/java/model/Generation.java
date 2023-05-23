@@ -73,12 +73,17 @@ public class Generation{
     }
 
     public void startGeneration() throws IOException, ClassNotFoundException {
-        strategy.generate(this.file, this.savePath);
-        if(strategy instanceof MultipleGeneration)
+        if(this.file.getName().equals("Aucun fichier sélectionné"))
         {
-            notifyObserversWithMessageBox("Les fichiers ont été générés avec succès!");
+            notifyObserversWithMessageBox("Vous n'avez sélectionné aucun fichier à convertir.");
         } else {
-            notifyObserversWithMessageBox("Le fichier " + file.getName().split("\\.")[0] + ".puml a été généré avec succès!");
+            strategy.generate(this.file, this.savePath);
+            if(strategy instanceof MultipleGeneration)
+            {
+                notifyObserversWithMessageBox("Les fichiers ont été générés avec succès!");
+            } else {
+                notifyObserversWithMessageBox("Le fichier " + file.getName().split("\\.")[0] + ".puml a été généré avec succès!");
+            }
         }
     }
 
