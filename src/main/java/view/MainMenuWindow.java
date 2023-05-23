@@ -54,6 +54,7 @@ public class MainMenuWindow extends JFrame implements MainMenuObserver
         JLabel savingMethod = new JLabel("Comment le résultat doit être généré ?", SwingConstants.CENTER);
 
         JLabel version = new JLabel("Version 1.0.0", SwingConstants.CENTER);
+        JLabel droits = new JLabel("Tous droits réservés.", SwingConstants.CENTER);
 
         // Text Areas
         JTextArea fileTextArea = new JTextArea(generation.getFile().toString(), 1, 40);
@@ -182,6 +183,8 @@ public class MainMenuWindow extends JFrame implements MainMenuObserver
 
         constraints.gridy++;
         add(version, constraints);
+        constraints.gridy++;
+        add(droits, constraints);
 
         // On rend la fenêtre visible
         setResizable(false);
