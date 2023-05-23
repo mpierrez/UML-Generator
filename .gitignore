@@ -1,0 +1,54 @@
+# Dossiers cibles de Maven
+target/
+*/target/
+
+# Fichiers de configuration IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Fichiers spécifiques à Eclipse
+.classpath
+.project
+.settings/
+
+# Fichiers de sauvegarde
+*~
+*.swp
+
+# Fichiers de compilation Java
+*.class
+
+# Fichiers de journalisation
+*.log
+log/
+
+# Fichiers de dépendances Maven
+dependency-reduced-pom.xml
+.mvn/wrapper/maven-wrapper.jar
+
+# Fichiers de sortie générés
+out/
+build/
+dist/
+bin/
+
+# Fichiers générés par des outils de construction
+build.xml
+pom.xml.tag
+nbactions.xml
+
+# Fichiers générés par IntelliJ
+out/
+.idea_modules/
+
+# Fichiers générés par Maven Shade Plugin (empaquetage avec les dépendances)
+*-jar-with-dependencies.jar
+
+# Fichiers de cache
+.cache/
+
+# Fichiers de sauvegarde
+*.bak
+*.backup

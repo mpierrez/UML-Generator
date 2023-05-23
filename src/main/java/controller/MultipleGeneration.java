@@ -1,16 +1,17 @@
 package controller;
 
-import model.Classe;
-import model.ClasseAbstraite;
-import model.Enumeration;
-import model.Interface;
+import model.Generation;
 
 import java.io.*;
-import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 public class MultipleGeneration extends Generation implements GenerationStrategy
 {
+    protected FileWriter ecriture;
+
+    public MultipleGeneration(File file, String savePath) {
+        super(file, savePath);
+    }
 
     @Override
     public void generate(File file, String savePath) throws IOException {
@@ -18,10 +19,8 @@ public class MultipleGeneration extends Generation implements GenerationStrategy
             for (File f : Objects.requireNonNull(file.listFiles())) {
                 if (f.isDirectory()) {
                     File dir = new File(savePath + "/" + f.getName());
-                    if(dir.mkdir())
-                    {
-                        generate(f, dir.getAbsolutePath());
-                    }
+                    if(!dir.exists()) dir.mkdir();
+                    generate(f, dir.getAbsolutePath());
                 } else {
                     write(f, savePath);
                 }
@@ -44,12 +43,13 @@ public class MultipleGeneration extends Generation implements GenerationStrategy
         }
         fichier.createNewFile();
 
-        //Lancement de la sélection de l'utilisateur
+        //Lancement de l'écriture dans le fichier
         ecriture.write(ecrireEnTete());
         ecriture.write(transformJavaToPlantUML(file));
-        ecriture.write("\n\n@enduml\n");
+        ecriture.write(ecrirePiedDePage());
 
         System.out.println("Le fichier " + nomFichier + " a été généré avec succès!");
         if (ecriture != null) ecriture.close();
     }
+
 }

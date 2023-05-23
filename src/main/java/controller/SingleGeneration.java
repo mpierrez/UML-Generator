@@ -1,78 +1,61 @@
 package controller;
 
-import model.Classe;
-import model.ClasseAbstraite;
-import model.Enumeration;
-import model.Interface;
+import model.Generation;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.util.Objects;
 
 public class SingleGeneration extends Generation implements GenerationStrategy
 {
-    private File fichier;
+    private StringBuilder uml = new StringBuilder();
+    private StringBuilder relations = new StringBuilder();
+    protected FileWriter ecriture;
+
+    public SingleGeneration(File file, String savePath) {
+        super(file, savePath);
+    }
 
     @Override
-    public void generate(File file, String savePath) throws IOException, ClassNotFoundException
+    public void generate(File file, String savePath) throws IOException
     {
-        System.out.println("Generation en single");
-        //Générer le fichier puml
-        if(fichier == null) {
-            String nomFichier = file.getName().split("\\.")[0];
-            fichier = new File(savePath + "\\" + nomFichier + ".puml");
-            if (fichier.exists()) {
-                if (fichier.delete())
-                    System.out.println("Le fichier " + fichier.getName() + " existe déjà, nous l'avons donc supprimé pour en générer un nouveau!");
-            }
-            fichier.createNewFile();
-
-            this.ecriture = new FileWriter(savePath + "\\" + nomFichier + ".puml");
-            ecrireEnTete();
-        }
-        if(file.isDirectory()) {
+        if(super.file.isDirectory())
+        {
             for (File f : Objects.requireNonNull(file.listFiles())) {
                 if (f.isDirectory()) {
                     generate(f, savePath + "/" + f.getName());
                 } else {
-                    write(f, savePath);
+                    uml.append(transformJavaToPlantUML(f));
+                    relations.append(plantUMLRelations);
                 }
             }
-        } else {
             write(file, savePath);
-        }
-        if(fichier.getName().split("\\.")[0].equals(file.getName())) {
-            System.out.println(fichier.getName() + " == " + file.getName());
-//            ecrirePiedPage();
-//           ecrire();
-            System.out.println("Le fichier " + fichier.getName() + " a été généré avec succès!");
-            fichier = null;
-            if (ecriture != null) ecriture.close();
         } else {
-            System.out.println(fichier.getName() + " != " + file.getName());
+            uml.append(transformJavaToPlantUML(file));
+            relations.append(plantUMLRelations);
+            write(file, savePath);
         }
     }
 
     @Override
-    public void write(File file, String savePath) throws ClassNotFoundException, IOException
-    {
-        Class<?> c = Class.forName(file.getClass().getName());
-        Classe classe = new Classe(c);
-        if (Modifier.isAbstract(c.getModifiers())) {
-            if (c.isInterface()) {
-                classe = new Interface(c);
-            } else {
-                classe = new ClasseAbstraite(c);
-            }
-        } else if (c.isEnum()) {
-            classe = new Enumeration(c);
-        }
-        this.classe = classe;
+    public void write(File file, String savePath) throws IOException {
+        //Générer le fichier puml
+        String nomFichier = super.file.getName().split("\\.")[0];
+        File fichier = new File(super.savePath + "//" + nomFichier+ ".puml");
+        this.ecriture = new FileWriter(super.savePath + "//" + nomFichier+ ".puml");
 
-        //Lancement de la sélection de l'utilisateur
-        //ecrireClasse();
-        //ecrire();
+        if (!fichier.exists()) {
+            fichier.createNewFile();
+        }
+
+        //Lancement de l'écriture dans le fichier
+        ecriture.write(ecrireEnTete());
+        ecriture.write(uml.toString());
+        ecriture.write(relations.toString());
+        ecriture.write(ecrirePiedDePage());
+
+        System.out.println("Le fichier " + nomFichier + " a été généré avec succès!");
+        if (ecriture != null) ecriture.close();
     }
 }

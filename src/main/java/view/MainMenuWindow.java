@@ -1,6 +1,7 @@
 package view;
 
-import controller.Generation;
+import controller.MainMenuObserver;
+import model.Generation;
 import controller.MultipleGeneration;
 import controller.SingleGeneration;
 
@@ -8,17 +9,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.*;
 
-public class MainMenuWindow extends JFrame
+public class MainMenuWindow extends JFrame implements MainMenuObserver
 {
-    //private String filePath = "Aucun fichier sélectionné";
-    private String filePath = "C:\\Users\\mathy\\OneDrive\\Bureau\\Robert_Schuman\\2\\A32\\a31-chessgame\\ChessGame\\src\\model\\ChessBoard.java";
-    private String savePath;
 
     public MainMenuWindow(Generation generation)
     {
         // On ajoute un titre à notre fenêtre
         super("UML Generator");
-        this.savePath = System.getProperty("user.dir") + "\\uml";
+        generation.setStrategy(new MultipleGeneration(generation.getFile(), generation.getSavePath()));
         setSize(800,500);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
 
@@ -56,12 +54,12 @@ public class MainMenuWindow extends JFrame
         JLabel version = new JLabel("Version 1.0.0", SwingConstants.CENTER);
 
         // Text Areas
-        JTextArea fileTextArea = new JTextArea(filePath, 1, 40);
+        JTextArea fileTextArea = new JTextArea(generation.getFile().toString(), 1, 40);
         fileTextArea.setLineWrap(false);
         fileTextArea.setEditable(false);
         JScrollPane fileScrollPane = new JScrollPane(fileTextArea);
 
-        JTextArea saveTextArea = new JTextArea(savePath, 1, 40);
+        JTextArea saveTextArea = new JTextArea(generation.getSavePath(), 1, 40);
         saveTextArea.setLineWrap(false);
         saveTextArea.setEditable(false);
         JScrollPane saveScrollPane = new JScrollPane(saveTextArea);
@@ -73,13 +71,9 @@ public class MainMenuWindow extends JFrame
         // Buttons
         ButtonGroup buttonGroup = new ButtonGroup();
         JRadioButton multipleFiles = new JRadioButton("Un fichier pour chaque classe");
-        multipleFiles.addActionListener(actionEvent -> {
-            generation.setStrategy(new MultipleGeneration());
-        });
+        multipleFiles.addActionListener(actionEvent -> generation.setStrategy(new MultipleGeneration(generation.getFile(), generation.getSavePath())));
         JRadioButton oneBigFile = new JRadioButton("Un seul fichier");
-        oneBigFile.addActionListener(actionEvent -> {
-            generation.setStrategy(new SingleGeneration());
-        });
+        oneBigFile.addActionListener(actionEvent -> generation.setStrategy(new SingleGeneration(generation.getFile(), generation.getSavePath())));
         buttonGroup.add(multipleFiles);
         buttonGroup.add(oneBigFile);
         multipleFiles.setSelected(true);
@@ -87,7 +81,7 @@ public class MainMenuWindow extends JFrame
         JButton confirmButton = new JButton("Confirmer");
         confirmButton.addActionListener( actionEvent -> {
             try {
-                generation.startGeneration(new File(filePath), savePath);
+                generation.startGeneration();
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -98,8 +92,9 @@ public class MainMenuWindow extends JFrame
             fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
             {
-                this.filePath = fileChooser.getSelectedFile().toString();
-                fileTextArea.setText(filePath);
+                File file = fileChooser.getSelectedFile();
+                fileTextArea.setText(file.toString());
+                generation.setFile(file);
                 SwingUtilities.updateComponentTreeUI(centerPanel);
             }
         });
@@ -110,8 +105,9 @@ public class MainMenuWindow extends JFrame
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             if(fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
             {
-                this.savePath = fileChooser.getSelectedFile().toString();
+                String savePath = fileChooser.getSelectedFile().toString();
                 saveTextArea.setText(savePath);
+                generation.setSavePath(savePath);
                 SwingUtilities.updateComponentTreeUI(centerPanel);
             }
         });
@@ -176,4 +172,8 @@ public class MainMenuWindow extends JFrame
 
     }
 
+    @Override
+    public void showMessageBox(String message) {
+        JOptionPane.showMessageDialog(this, message);
+    }
 }
